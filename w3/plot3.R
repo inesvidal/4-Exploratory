@@ -1,0 +1,43 @@
+## This script explores the National Emissions Inventory data to answer:
+# Of the four types of sources indicated by the type (point, nonpoint, onroad, nonroad) 
+# variable, which of these four sources have seen decreases in emissions from 1999-2008 
+# for Baltimore City? Which have seen increases in emissions from 1999-2008?
+# use ggplot2
+
+#### load data
+# variable initialisation
+zipfile = "./exdata-data-NEI_data.zip"
+nei_file = "./summarySCC_PM25.rds"
+scc_file = "./Source_Classification_Code.rds"
+
+# set working directory
+setwd("/Users/inesv/Coursera/4-Exploratory/w3")
+
+# unzip if required
+if(!(file.exists(nei_file) && file.exists(scc_file))) {
+    unzip (zipfile, exdir = "./", junkpaths = TRUE)
+}
+
+# load data, if not done yet
+if(!(exists("NEI") && exists("SCC"))){
+    NEI <- readRDS(nei_file)
+    SCC <- readRDS(scc_file)
+}
+
+#### Prepare data
+NEI_baltimore <- NEI[NEI$fips == "24510", ]
+data_baltimore_type <- aggregate (Emissions ~ year + type, data = NEI_baltimore, sum)
+
+# Plot total emissions (tons) per year in Baltimore
+plot_name <- "plot3.png"
+png(filename = plot_name, width = 480, height = 480, units = "px", pointsize = 12)
+
+library(ggplot2)
+a <- ggplot(data = data_baltimore_type, aes(x = year, y = Emissions, color = type)) + 
+    geom_line() +  
+    xlab("Year") + ylab("Emissions (Tons)") + 
+    ggtitle("Evolution of Emissions in Baltimore") 
+print(a) 
+dev.off();
+
+
